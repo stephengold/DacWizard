@@ -678,8 +678,8 @@ public class DacWizard extends GuiApplication {
                 640, 480, // minimum width and height
                 2_048, 1_080 // maximum width and height
         );
-        DisplaySettings displaySettings
-                = new DisplaySettings(application, applicationName, dsl) {
+        DisplaySettings displaySettings = new DisplaySettings(
+                application, applicationName, dsl) {
             @Override
             protected void applyOverrides(AppSettings settings) {
                 super.applyOverrides(settings);
