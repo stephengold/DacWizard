@@ -26,38 +26,33 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3utilities.minie.wizard;
+package com.github.stephengold.wizard;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.RotationOrder;
-import com.jme3.bullet.animation.CenterHeuristic;
-import com.jme3.bullet.animation.ShapeHeuristic;
 import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.KeyInput;
-import com.jme3.math.Vector3f;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3utilities.MyString;
 import jme3utilities.Validate;
-import jme3utilities.math.MyVector3f;
 import jme3utilities.ui.InputMode;
 
 /**
- * Input mode for the "links" screen of DacWizard.
+ * Input mode for the "bones" screen of DacWizard.
  *
  * @author Stephen Gold sgold@sonic.net
  */
-class LinksMode extends InputMode {
+class BonesMode extends InputMode {
     // *************************************************************************
     // constants and loggers
 
     /**
      * message logger for this class
      */
-    final static Logger logger = Logger.getLogger(LinksMode.class.getName());
+    final static Logger logger = Logger.getLogger(BonesMode.class.getName());
     /**
      * asset path to the cursor for this mode
      */
@@ -68,8 +63,8 @@ class LinksMode extends InputMode {
     /**
      * Instantiate a disabled, uninitialized input mode.
      */
-    LinksMode() {
-        super("links");
+    BonesMode() {
+        super("bones");
     }
     // *************************************************************************
     // InputMode methods
@@ -126,51 +121,20 @@ class LinksMode extends InputMode {
                     new Object[]{MyString.quote(actionString), ongoing});
         }
 
-        boolean handled = true;
+        boolean handled = false;
         if (ongoing) {
-            LinksScreen screen = DacWizard.findAppState(LinksScreen.class);
             switch (actionString) {
-                case Action.nextMassHeuristic:
-                    screen.nextMassHeuristic();
-                    break;
-
                 case Action.nextScreen:
                     nextScreen();
+                    handled = true;
                     break;
 
                 case Action.previousScreen:
                     previousScreen();
-                    break;
-
-                case Action.selectCenterHeuristic:
-                    screen.selectCenterHeuristic();
-                    break;
-
-                case Action.selectRotationOrder:
-                    screen.selectRotationOrder();
-                    break;
-
-                case Action.selectShapeHeuristic:
-                    screen.selectShapeHeuristic();
-                    break;
-
-                case Action.setMassParameter:
-                    screen.setMassParameter();
-                    break;
-
-                case Action.setShapeScale:
-                    screen.setShapeScale();
-                    break;
-
-                case Action.toggleAngleMode:
-                    DacWizard.getModel().toggleAngleMode();
+                    handled = true;
                     break;
 
                 default:
-                    handled = false;
-            }
-            if (!handled) {
-                handled = testForPrefixes(actionString);
             }
         }
         if (!handled) {
@@ -181,73 +145,23 @@ class LinksMode extends InputMode {
     // private methods
 
     /**
-     * Proceed to the "test" screen if possible.
+     * Proceed to the "torso" screen if possible.
      */
     private void nextScreen() {
-        String feedback = LinksScreen.feedback();
+        String feedback = BonesScreen.feedback();
         if (feedback.isEmpty()) {
             setEnabled(false);
-            InputMode test = InputMode.findMode("test");
-            test.setEnabled(true);
+            InputMode load = InputMode.findMode("torso");
+            load.setEnabled(true);
         }
     }
 
     /**
-     * Go back to the "torso" screen.
+     * Go back to the "load" screen.
      */
     private void previousScreen() {
         setEnabled(false);
-        InputMode bones = InputMode.findMode("torso");
-        bones.setEnabled(true);
-    }
-
-    /**
-     * Test an ongoing action for prefixes.
-     *
-     * @param actionString textual description of the action (not null)
-     * @return true if the action is handled, otherwise false
-     */
-    private static boolean testForPrefixes(String actionString) {
-        boolean handled = true;
-        LinksScreen screen = DacWizard.findAppState(LinksScreen.class);
-        String arg;
-
-        if (actionString.startsWith("select centerHeuristic ")) {
-            arg = MyString.remainder(actionString, "select centerHeuristic ");
-            CenterHeuristic heuristic = CenterHeuristic.valueOf(arg);
-            screen.selectCenterHeuristic(heuristic);
-
-        } else if (actionString.startsWith("select rotationOrder ")) {
-            arg = MyString.remainder(actionString, "select rotationOrder ");
-            RotationOrder axisOrder;
-            if (arg.equals("sixdof")) {
-                axisOrder = null;
-            } else {
-                axisOrder = RotationOrder.valueOf(arg);
-            }
-            screen.selectRotationOrder(axisOrder);
-
-        } else if (actionString.startsWith("select shapeHeuristic ")) {
-            arg = MyString.remainder(actionString, "select shapeHeuristic ");
-            ShapeHeuristic heuristic = ShapeHeuristic.valueOf(arg);
-            screen.selectShapeHeuristic(heuristic);
-
-        } else if (actionString.startsWith("set massParameter ")) {
-            arg = MyString.remainder(actionString, "set massParameter ");
-            float value = Float.parseFloat(arg);
-            screen.setMassParameter(value);
-
-        } else if (actionString.startsWith("set shapeScale ")) {
-            arg = MyString.remainder(actionString, "set shapeScale ");
-            Vector3f factors = MyVector3f.parse(arg);
-            if (factors != null && MyVector3f.isAllPositive(factors)) {
-                screen.setShapeScale(factors);
-            }
-
-        } else {
-            handled = false;
-        }
-
-        return handled;
+        InputMode load = InputMode.findMode("load");
+        load.setEnabled(true);
     }
 }

@@ -189,7 +189,7 @@
         <!-- Checks for naming conventions            -->
         <!-- See https://checkstyle.org/checks/naming -->
         <module name="PackageName">
-            <property name="format" value="^jme3utilities[.]minie[.]wizard$"/>
+            <property name="format" value="^com[.]github[.]stephengold[.]wizard$"/>
             <message key="name.invalidPattern"
                      value="Package name ''{0}'' must match pattern ''{1}''."/>
         </module>

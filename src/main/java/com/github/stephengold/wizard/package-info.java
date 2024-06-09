@@ -29,4 +29,4 @@
 /**
  * A GUI application to configure a DynamicAnimControl for a C-G model.
  */
-package jme3utilities.minie.wizard;
+package com.github.stephengold.wizard;

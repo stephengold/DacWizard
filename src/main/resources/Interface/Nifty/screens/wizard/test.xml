@@ -32,7 +32,7 @@
 Nifty XML to lay out the GUI for the "test" screen of DacWizard.
 -->
 <nifty xmlns="http://nifty-gui.lessvoid.com/nifty-gui">
-    <screen id="test" controller="jme3utilities.minie.wizard.TestScreen">
+    <screen id="test" controller="com.github.stephengold.wizard.TestScreen">
         <layer childLayout="vertical">
             <panel childLayout="horizontal" backgroundColor="#aaaf" height="28px">
                 <panel/>

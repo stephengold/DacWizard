@@ -26,42 +26,45 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3utilities.minie.wizard;
+package com.github.stephengold.wizard;
 
 import com.jme3.app.Application;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.bullet.animation.DacConfiguration;
 import de.lessvoid.nifty.controls.Button;
 import de.lessvoid.nifty.controls.TreeBox;
 import de.lessvoid.nifty.controls.TreeItem;
 import de.lessvoid.nifty.elements.Element;
+import java.util.BitSet;
 import java.util.List;
 import java.util.logging.Logger;
 import jme3utilities.InitialState;
+import jme3utilities.MyString;
 import jme3utilities.nifty.GuiScreenController;
 import jme3utilities.ui.InputMode;
 
 /**
- * The screen controller for the "torso" screen of DacWizard.
+ * The screen controller for the "bones" screen of DacWizard.
  *
  * @author Stephen Gold sgold@sonic.net
  */
-class TorsoScreen extends GuiScreenController {
+class BonesScreen extends GuiScreenController {
     // *************************************************************************
     // constants and loggers
 
     /**
      * message logger for this class
      */
-    final static Logger logger = Logger.getLogger(TorsoScreen.class.getName());
+    final static Logger logger = Logger.getLogger(BonesScreen.class.getName());
     // *************************************************************************
     // fields
 
     /**
-     * element of the GUI button to proceed to the "links" screen
+     * element of the GUI button to proceed to the "torso" screen
      */
-    private Element linksElement;
+    private Element nextElement;
     /**
-     * TreeBox to display bones managed by the torso
+     * TreeBox to display all bones in the skeleton
      */
     private TreeBox<BoneValue> treeBox;
     // *************************************************************************
@@ -71,9 +74,39 @@ class TorsoScreen extends GuiScreenController {
      * Instantiate an uninitialized, disabled screen that will not be enabled
      * during initialization.
      */
-    TorsoScreen() {
-        super("torso", "Interface/Nifty/screens/wizard/torso.xml",
+    BonesScreen() {
+        super("bones", "Interface/Nifty/screens/wizard/bones.xml",
                 InitialState.Disabled);
+    }
+    // *************************************************************************
+    // new methods exposed
+
+    /**
+     * Determine user feedback (if any) regarding the "next screen" action.
+     *
+     * @return "" if ready to proceed, otherwise an explanatory message
+     */
+    static String feedback() {
+        Model model = DacWizard.getModel();
+        int numBones = model.countBones();
+
+        String result = "";
+        if (model.listLinkedBones().length == 0) {
+            result = "No bones are linked.";
+        } else if (model.countVertices(DacConfiguration.torsoName) == 0) {
+            result = "No mesh vertices for the torso.";
+        } else {
+            for (int i = 0; i < numBones; ++i) {
+                if (model.isBoneLinked(i)) {
+                    String name = model.boneName(i);
+                    if (model.countVertices(name) == 0) {
+                        result = "No mesh vertices for " + MyString.quote(name);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
     // *************************************************************************
     // GuiScreenController methods
@@ -89,7 +122,7 @@ class TorsoScreen extends GuiScreenController {
             AppStateManager stateManager, Application application) {
         super.initialize(stateManager, application);
 
-        InputMode inputMode = InputMode.findMode("torso");
+        InputMode inputMode = InputMode.findMode("bones");
         assert inputMode != null;
         setListener(inputMode);
         inputMode.influence(this);
@@ -112,11 +145,11 @@ class TorsoScreen extends GuiScreenController {
     public void onStartScreen() {
         super.onStartScreen();
 
-        Button linksButton = getButton("links");
-        if (linksButton == null) {
-            throw new RuntimeException("missing GUI control: linksButton");
+        Button nextButton = getButton("next");
+        if (nextButton == null) {
+            throw new RuntimeException("missing GUI control: nextButton");
         }
-        this.linksElement = linksButton.getElement();
+        this.nextElement = nextButton.getElement();
 
         this.treeBox = getScreen().findNiftyControl("skeleton", TreeBox.class);
         if (treeBox == null) {
@@ -126,46 +159,35 @@ class TorsoScreen extends GuiScreenController {
         TreeItem<BoneValue> rootItem = new TreeItem<>();
         rootItem.setExpanded(true);
         Model model = DacWizard.getModel();
-        int[] managedBones = model.listTorsoManagedBones();
-        int numManaged = managedBones.length;
-
-        // Create an item for each bone managed by the torso.
-        TreeItem<BoneValue>[] boneItems = new TreeItem[numManaged];
-        for (int managedIndex = 0; managedIndex < numManaged; ++managedIndex) {
-            int boneIndex = managedBones[managedIndex];
-            BoneValue value = new BoneValue(boneIndex);
-            boneItems[managedIndex] = new TreeItem<>(value);
-            boneItems[managedIndex].setExpanded(true);
-        }
-
-        // Generate a map from bone indices to managed-bone indices.
         int numBones = model.countBones();
-        int[] mbiArray = new int[numBones];
+
+        // Create an item for each bone in the model's skeleton.
+        TreeItem<BoneValue>[] boneItems = new TreeItem[numBones];
         for (int boneIndex = 0; boneIndex < numBones; ++boneIndex) {
-            mbiArray[boneIndex] = -1;
-        }
-        for (int managedIndex = 0; managedIndex < numManaged; ++managedIndex) {
-            int boneIndex = managedBones[managedIndex];
-            mbiArray[boneIndex] = managedIndex;
+            BoneValue value = new BoneValue(boneIndex);
+            boneItems[boneIndex] = new TreeItem<>(value);
+            boneItems[boneIndex].setExpanded(true);
         }
 
         // Parent each item.
-        for (int managedIndex = 0; managedIndex < numManaged; ++managedIndex) {
-            TreeItem<BoneValue> childItem = boneItems[managedIndex];
-            int boneIndex = managedBones[managedIndex];
-            int parentIndex = model.parentIndex(boneIndex);
+        for (int childIndex = 0; childIndex < numBones; ++childIndex) {
+            TreeItem<BoneValue> childItem = boneItems[childIndex];
+            int parentIndex = model.parentIndex(childIndex);
             if (parentIndex == -1) {
                 rootItem.addTreeItem(childItem);
             } else {
-                int parentMbi = mbiArray[parentIndex];
-                boneItems[parentMbi].addTreeItem(childItem);
+                boneItems[parentIndex].addTreeItem(childItem);
             }
         }
         treeBox.setTree(rootItem);
 
-        // Pre-select the item for the main bone.
-        int mainBoneIndex = model.mainBoneIndex();
-        selectItem(mainBoneIndex);
+        // Pre-select items.
+        for (int boneIndex = 0; boneIndex < numBones; ++boneIndex) {
+            TreeItem<BoneValue> item = boneItems[boneIndex];
+            if (model.isBoneLinked(boneIndex)) {
+                treeBox.selectItem(item);
+            }
+        }
     }
 
     /**
@@ -182,48 +204,30 @@ class TorsoScreen extends GuiScreenController {
             return;
         }
 
+        List<TreeItem<BoneValue>> selectedBones = treeBox.getSelection();
+        int numSelected = selectedBones.size();
+
         Model model = DacWizard.getModel();
-        List<TreeItem<BoneValue>> selectedItems = treeBox.getSelection();
-        int numSelected = selectedItems.size();
-        if (numSelected == 1) { // Update the main-bone index in the model.
-            TreeItem<BoneValue> mbItem = selectedItems.get(0);
-            BoneValue mbValue = mbItem.getValue();
-            int mbIndex = mbValue.boneIndex();
-            model.setMainBoneIndex(mbIndex);
+        int numBones = model.countBones();
 
-        } else { // empty selection:  re-select the main bone
-            int mainBoneIndex = model.mainBoneIndex();
-            selectItem(mainBoneIndex);
+        String numText = String.format("Selected %d of %d bone%s",
+                numSelected, numBones, numBones == 1 ? "" : "s");
+        setStatusText("numSelected", numText);
+
+        BitSet linkedBones = new BitSet(numBones);
+        for (TreeItem<BoneValue> treeItem : selectedBones) {
+            BoneValue value = treeItem.getValue();
+            int boneIndex = value.boneIndex();
+            linkedBones.set(boneIndex);
         }
-        /*
-         * If there's a ragdoll already configured, allow the user to
-         * bypass range-of-motion estimation.
-         */
-        boolean hasRagdoll = model.hasConfiguredRagdoll();
-        if (hasRagdoll) {
-            linksElement.show();
+        model.setLinkedBones(linkedBones);
+
+        String feedback = feedback();
+        setStatusText("feedback", feedback);
+        if (feedback.isEmpty()) {
+            nextElement.show();
         } else {
-            linksElement.hide();
-        }
-    }
-    // *************************************************************************
-    // private methods
-
-    /**
-     * Select the tree item corresponding to the indexed bone.
-     *
-     * @param boneIndex the index of the bone to select (&ge;0)
-     */
-    private void selectItem(int boneIndex) {
-        assert boneIndex >= 0 : boneIndex;
-
-        List<TreeItem<BoneValue>> itemList = treeBox.getItems();
-        for (TreeItem<BoneValue> item : itemList) {
-            BoneValue value = item.getValue();
-            if (value.boneIndex() == boneIndex) {
-                treeBox.selectItem(item);
-                break;
-            }
+            nextElement.hide();
         }
     }
 }

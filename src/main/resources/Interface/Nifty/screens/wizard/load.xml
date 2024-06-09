@@ -32,7 +32,7 @@
 Nifty XML to lay out the GUI for the "load" screen of DacWizard.
 -->
 <nifty xmlns="http://nifty-gui.lessvoid.com/nifty-gui">
-    <screen id="load" controller="jme3utilities.minie.wizard.LoadScreen">
+    <screen id="load" controller="com.github.stephengold.wizard.LoadScreen">
         <layer childLayout="vertical">
             <panel childLayout="horizontal" backgroundColor="#aaaf" height="28px">
                 <panel/>

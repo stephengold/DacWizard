@@ -15,7 +15,7 @@ java {
 }
 
 application {
-    mainClass = "jme3utilities.minie.wizard.DacWizard"
+    mainClass = "com.github.stephengold.wizard.DacWizard"
 }
 if (!isMacOS) {
     tasks.register<JavaExec>("runForceDialog") {

@@ -26,37 +26,38 @@
  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package jme3utilities.minie.wizard;
+package com.github.stephengold.wizard;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.bullet.RotationOrder;
+import com.jme3.bullet.animation.CenterHeuristic;
+import com.jme3.bullet.animation.ShapeHeuristic;
 import com.jme3.cursors.plugins.JmeCursor;
-import com.jme3.input.CameraInput;
 import com.jme3.input.KeyInput;
+import com.jme3.math.Vector3f;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3utilities.MyString;
 import jme3utilities.Validate;
-import jme3utilities.nifty.dialog.AllowNull;
-import jme3utilities.nifty.dialog.DialogController;
-import jme3utilities.nifty.dialog.FloatDialog;
+import jme3utilities.math.MyVector3f;
 import jme3utilities.ui.InputMode;
 
 /**
- * Input mode for the "load" screen of DacWizard.
+ * Input mode for the "links" screen of DacWizard.
  *
  * @author Stephen Gold sgold@sonic.net
  */
-class LoadMode extends InputMode {
+class LinksMode extends InputMode {
     // *************************************************************************
     // constants and loggers
 
     /**
      * message logger for this class
      */
-    final static Logger logger = Logger.getLogger(LoadMode.class.getName());
+    final static Logger logger = Logger.getLogger(LinksMode.class.getName());
     /**
      * asset path to the cursor for this mode
      */
@@ -67,8 +68,8 @@ class LoadMode extends InputMode {
     /**
      * Instantiate a disabled, uninitialized input mode.
      */
-    LoadMode() {
-        super("load");
+    LinksMode() {
+        super("links");
     }
     // *************************************************************************
     // InputMode methods
@@ -83,21 +84,14 @@ class LoadMode extends InputMode {
         bind(Action.editBindings, KeyInput.KEY_F1);
         bind(Action.editDisplaySettings, KeyInput.KEY_F2);
 
-        bind(Action.previousScreen, KeyInput.KEY_PGUP, KeyInput.KEY_B);
-        bind(Action.nextScreen, KeyInput.KEY_PGDN, KeyInput.KEY_N);
-
-        bindSignal(CameraInput.FLYCAM_BACKWARD, KeyInput.KEY_S);
-        bindSignal(CameraInput.FLYCAM_FORWARD, KeyInput.KEY_W);
-        bindSignal(CameraInput.FLYCAM_LOWER, KeyInput.KEY_Z);
-        bindSignal(CameraInput.FLYCAM_RISE, KeyInput.KEY_Q);
-        bindSignal("orbitLeft", KeyInput.KEY_A);
-        bindSignal("orbitRight", KeyInput.KEY_D);
+        bind(Action.previousScreen, KeyInput.KEY_PGUP);
 
         bind(Action.dumpPhysicsSpace, KeyInput.KEY_O);
         bind(Action.dumpRenderer, KeyInput.KEY_P);
+        bind(Action.nextScreen, KeyInput.KEY_PGDN);
 
-        bind(SimpleApplication.INPUT_MAPPING_CAMERA_POS, KeyInput.KEY_C);
-        bind(Action.toggleSkeleton, KeyInput.KEY_V);
+        bind(Action.previousScreen, KeyInput.KEY_B);
+        bind(Action.nextScreen, KeyInput.KEY_N);
     }
 
     /**
@@ -109,7 +103,7 @@ class LoadMode extends InputMode {
     @Override
     public void initialize(
             AppStateManager stateManager, Application application) {
-        // Configure the mouse cursor for this mode.
+        // Set the mouse cursor for this mode.
         AssetManager manager = application.getAssetManager();
         JmeCursor cursor = (JmeCursor) manager.loadAsset(assetPath);
         setCursor(cursor);
@@ -132,61 +126,53 @@ class LoadMode extends InputMode {
                     new Object[]{MyString.quote(actionString), ongoing});
         }
 
-        boolean handled = false;
+        boolean handled = true;
         if (ongoing) {
-            Model model = DacWizard.getModel();
-            handled = true;
+            LinksScreen screen = DacWizard.findAppState(LinksScreen.class);
             switch (actionString) {
-                case Action.load:
-                    model.load();
-                    break;
-
-                case Action.morePath:
-                    model.morePath();
-                    break;
-
-                case Action.moreRoot:
-                    model.moreRoot();
-                    break;
-
-                case Action.nextAnimation:
-                    model.nextAnimation();
+                case Action.nextMassHeuristic:
+                    screen.nextMassHeuristic();
                     break;
 
                 case Action.nextScreen:
                     nextScreen();
                     break;
 
-                case Action.previousAnimation:
-                    model.previousAnimation();
-                    break;
-
                 case Action.previousScreen:
-                    model.unload();
                     previousScreen();
                     break;
 
-                case Action.setAnimationTime:
-                    setAnimationTime();
+                case Action.selectCenterHeuristic:
+                    screen.selectCenterHeuristic();
                     break;
 
-                case Action.toggleSkeleton:
-                    model.toggleShowingSkeleton();
+                case Action.selectRotationOrder:
+                    screen.selectRotationOrder();
+                    break;
+
+                case Action.selectShapeHeuristic:
+                    screen.selectShapeHeuristic();
+                    break;
+
+                case Action.setMassParameter:
+                    screen.setMassParameter();
+                    break;
+
+                case Action.setShapeScale:
+                    screen.setShapeScale();
+                    break;
+
+                case Action.toggleAngleMode:
+                    DacWizard.getModel().toggleAngleMode();
                     break;
 
                 default:
                     handled = false;
             }
-
-            String prefix = Action.setAnimationTime + " ";
-            if (!handled && actionString.startsWith(prefix)) {
-                String argument = MyString.remainder(actionString, prefix);
-                float time = Float.parseFloat(argument);
-                model.setAnimationTime(time);
-                handled = true;
+            if (!handled) {
+                handled = testForPrefixes(actionString);
             }
         }
-
         if (!handled) {
             getActionApplication().onAction(actionString, ongoing, tpf);
         }
@@ -195,42 +181,73 @@ class LoadMode extends InputMode {
     // private methods
 
     /**
-     * Proceed to the "bones" screen if possible.
+     * Proceed to the "test" screen if possible.
      */
     private void nextScreen() {
-        String feedback = LoadScreen.feedback();
+        String feedback = LinksScreen.feedback();
         if (feedback.isEmpty()) {
             setEnabled(false);
-            InputMode bones = InputMode.findMode("bones");
-            bones.setEnabled(true);
+            InputMode test = InputMode.findMode("test");
+            test.setEnabled(true);
         }
     }
 
     /**
-     * Go back to the "filePath" screen.
+     * Go back to the "torso" screen.
      */
     private void previousScreen() {
         setEnabled(false);
-        InputMode filePath = InputMode.findMode("filePath");
-        filePath.setEnabled(true);
+        InputMode bones = InputMode.findMode("torso");
+        bones.setEnabled(true);
     }
 
     /**
-     * Process a "set animationTime" action: display a dialog to enter a new
-     * animation time.
+     * Test an ongoing action for prefixes.
+     *
+     * @param actionString textual description of the action (not null)
+     * @return true if the action is handled, otherwise false
      */
-    private static void setAnimationTime() {
-        Model model = DacWizard.getModel();
-        float duration = model.animationDuration();
-        DialogController controller
-                = new FloatDialog("Set", 0f, duration, AllowNull.No);
+    private static boolean testForPrefixes(String actionString) {
+        boolean handled = true;
+        LinksScreen screen = DacWizard.findAppState(LinksScreen.class);
+        String arg;
 
-        float oldTime = model.animationTime();
-        String defaultText = Float.toString(oldTime);
+        if (actionString.startsWith("select centerHeuristic ")) {
+            arg = MyString.remainder(actionString, "select centerHeuristic ");
+            CenterHeuristic heuristic = CenterHeuristic.valueOf(arg);
+            screen.selectCenterHeuristic(heuristic);
 
-        LoadScreen screen = DacWizard.findAppState(LoadScreen.class);
-        screen.closeAllPopups();
-        screen.showTextEntryDialog("Enter the animation time (in seconds):",
-                defaultText, Action.setAnimationTime + " ", controller);
+        } else if (actionString.startsWith("select rotationOrder ")) {
+            arg = MyString.remainder(actionString, "select rotationOrder ");
+            RotationOrder axisOrder;
+            if (arg.equals("sixdof")) {
+                axisOrder = null;
+            } else {
+                axisOrder = RotationOrder.valueOf(arg);
+            }
+            screen.selectRotationOrder(axisOrder);
+
+        } else if (actionString.startsWith("select shapeHeuristic ")) {
+            arg = MyString.remainder(actionString, "select shapeHeuristic ");
+            ShapeHeuristic heuristic = ShapeHeuristic.valueOf(arg);
+            screen.selectShapeHeuristic(heuristic);
+
+        } else if (actionString.startsWith("set massParameter ")) {
+            arg = MyString.remainder(actionString, "set massParameter ");
+            float value = Float.parseFloat(arg);
+            screen.setMassParameter(value);
+
+        } else if (actionString.startsWith("set shapeScale ")) {
+            arg = MyString.remainder(actionString, "set shapeScale ");
+            Vector3f factors = MyVector3f.parse(arg);
+            if (factors != null && MyVector3f.isAllPositive(factors)) {
+                screen.setShapeScale(factors);
+            }
+
+        } else {
+            handled = false;
+        }
+
+        return handled;
     }
 }
