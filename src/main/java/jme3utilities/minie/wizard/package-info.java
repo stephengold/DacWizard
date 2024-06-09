@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2022, Stephen Gold
- All rights reserved.
+ Copyright (c) 2022 Stephen Gold
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
