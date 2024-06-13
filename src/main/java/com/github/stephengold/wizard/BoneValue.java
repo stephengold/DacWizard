@@ -67,7 +67,7 @@ class BoneValue {
     // new methods exposed
 
     /**
-     * Read the bone index.
+     * Return the bone index.
      *
      * @return the bone index (&ge;0)
      */

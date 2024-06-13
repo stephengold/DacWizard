@@ -195,7 +195,7 @@ class LoadMode extends InputMode {
     // private methods
 
     /**
-     * Proceed to the "bones" screen if possible.
+     * Advance to the "bones" screen if possible.
      */
     private void nextScreen() {
         String feedback = LoadScreen.feedback();

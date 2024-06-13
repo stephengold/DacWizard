@@ -150,7 +150,7 @@ class FilePathMode extends InputMode {
     // private methods
 
     /**
-     * Proceed to the "load" screen if possible.
+     * Advance to the "load" screen if possible.
      */
     private void nextScreen() {
         String feedback = FilePathScreen.feedback();

@@ -68,7 +68,7 @@ class LinkValue {
     // new methods exposed
 
     /**
-     * Read the name of the bone/torso.
+     * Return the name of the bone/torso.
      *
      * @return the bone name (not null)
      */

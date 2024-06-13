@@ -526,9 +526,9 @@ public class LinksScreen extends GuiScreenController {
     // private methods
 
     /**
-     * Read the configuration of the selected link.
+     * Return the configuration of the selected link.
      *
-     * @return the configuration (not null)
+     * @return the pre-existing configuration (not null)
      */
     private LinkConfig config() {
         Model model = DacWizard.getModel();
