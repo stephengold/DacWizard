@@ -17,7 +17,7 @@ jme3-desktop = { module = "org.jmonkeyengine:jme3-desktop", version.ref = "jme" 
 jme3-jogg = { module = "org.jmonkeyengine:jme3-jogg", version.ref = "jme" }
 jme3-plugins = { module = "org.jmonkeyengine:jme3-plugins", version.ref = "jme" }
 jme3-utilities-nifty = "com.github.stephengold:jme3-utilities-nifty:0.9.37"
-minie = "com.github.stephengold:Minie:9.0.0"
+minie = "com.github.stephengold:Minie:9.0.1"
 nifty-style-black = "com.github.nifty-gui:nifty-style-black:1.4.3"
 wes = "com.github.stephengold:Wes:0.8.1"
 
