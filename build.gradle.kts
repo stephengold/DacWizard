@@ -1,4 +1,4 @@
-// Gradle script to build the DacWizard project
+// Gradle script to build and run the DacWizard project
 
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
@@ -89,7 +89,7 @@ dependencies {
     implementation(libs.wes)
 
     // DacWizard doesn't use jme3-jogg
-    //  -- it is included solely to avoid warnings from AssetConfig.
+    //  -- it is included solely to avoid warnings from AssetConfig:
     runtimeOnly(libs.jme3.jogg)
 }
 
