@@ -37,9 +37,7 @@
     <module name="FileLength">
         <property name="max" value="1500"/>
     </module>
-    <module name="LineLength">
-        <property name="fileExtensions" value="java"/>
-    </module>
+    <module name="LineLength"/>
 
     <!-- Checks for whitespace:                       -->
     <!-- See https://checkstyle.org/checks/whitespace -->
@@ -167,10 +165,11 @@
         </module>
         <module name="MissingJavadocMethod">
             <property name="allowedAnnotations" value=""/>
-            <property name="minLineCount" value="2"/>
+            <property name="minLineCount" value="-1"/>
+            <property name="scope" value="private"/>
         </module>
         <module name="MissingJavadocType">
-            <property name="scope" value="protected"/>
+            <property name="scope" value="private"/>
         </module>
         <module name="NonEmptyAtclauseDescription"/>
         <module name="RequireEmptyLineBeforeBlockTagGroup"/>
@@ -222,7 +221,7 @@
             <message key="name.invalidPattern" value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="ClassTypeParameterName">
-            <property name="format" value="^[A-Z]$"/>
+            <property name="format" value="^$"/>
             <message key="name.invalidPattern" value="Class type name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="InterfaceTypeParameterName">
@@ -239,11 +238,11 @@
             <message key="name.invalidPattern" value="Local variable name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="MemberName">
-            <property name="format" value="^[a-z][0-9A-Za-z]{0,24}$"/>
+            <property name="format" value="^[a-z][0-9A-Za-z]{0,19}$"/>
             <message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="MethodName">
-            <property name="format" value="^[a-z][0-9A-Za-z]{0,29}$"/>
+            <property name="format" value="^[a-z][0-9A-Za-z]{0,23}$"/>
             <message key="name.invalidPattern" value="Method name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="MethodTypeParameterName">
@@ -255,7 +254,7 @@
             <message key="name.invalidPattern" value="Package name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="ParameterName">
-            <property name="format" value="^[a-z][0-9A-Za-z]{0,16}$"/>
+            <property name="format" value="^[a-z][0-9A-Za-z]{0,14}$"/>
             <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
         </module>
         <module name="PatternVariableName">
@@ -290,10 +289,10 @@
         <!-- Checks for size violations:             -->
         <!-- See https://checkstyle.org/checks/sizes -->
         <module name="MethodLength">
-            <property name="max" value="200"/>
+            <property name="max" value="100"/>
         </module>
         <module name="ParameterNumber">
-            <property name="max" value="5"/>
+            <property name="max" value="4"/>
         </module>
 
         <!-- Checks for whitespace:                       -->
