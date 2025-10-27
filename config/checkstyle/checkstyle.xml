@@ -98,6 +98,7 @@
         <module name="MutableException"/>
         <module name="OneTopLevelClass"/>
         <module name="ThrowsCount">
+            <property name="ignorePrivateMethods" value="false"/>
             <property name="max" value="1"/>
         </module>
 
@@ -166,7 +167,7 @@
             <property name="offset" value="0"/>
         </module>
         <module name="JavadocVariable">
-            <property name="accessModifiers" value="public, protected"/>
+            <property name="accessModifiers" value="public, protected, private"/>
         </module>
         <module name="MissingJavadocMethod">
             <property name="allowedAnnotations" value=""/>
@@ -215,7 +216,7 @@
         <!-- Checks for naming conventions:           -->
         <!-- See https://checkstyle.org/checks/naming -->
         <module name="AbbreviationAsWordInName">
-            <property name="allowedAbbreviationLength" value="2"/>
+            <property name="allowedAbbreviationLength" value="1"/>
             <property name="ignoreFinal" value="false"/>
             <property name="ignoreStatic" value="false"/>
             <property name="ignoreStaticFinal" value="false"/>
