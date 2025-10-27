@@ -171,7 +171,6 @@
         </module>
         <module name="MissingJavadocMethod">
             <property name="allowedAnnotations" value=""/>
-            <property name="minLineCount" value="-1"/>
             <property name="scope" value="private"/>
         </module>
         <module name="MissingJavadocType">
