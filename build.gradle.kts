@@ -40,7 +40,7 @@ checkstyle {
     toolVersion = libs.versions.checkstyle.get()
 }
 
-tasks.withType<JavaCompile>().all { // Java compile-time options:
+tasks.withType<JavaCompile>().configureEach { // Java compile-time options:
     options.compilerArgs.add("-Xdiags:verbose")
 
     // Suppress warnings that source value 8 is obsolete:
@@ -52,7 +52,7 @@ tasks.withType<JavaCompile>().all { // Java compile-time options:
     options.release = 8
 }
 
-tasks.withType<JavaExec>().all { // Java runtime options:
+tasks.withType<JavaExec>().configureEach { // Java runtime options:
     if (isMacOS) {
         jvmArgs("-XstartOnFirstThread")
     }
@@ -66,7 +66,7 @@ tasks.withType<JavaExec>().all { // Java runtime options:
     //jvmArgs("-XX:+UseG1GC", "-XX:MaxGCPauseMillis=10")
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.cacheChangingModulesFor(0, "seconds") // to disable caching of snapshots
 }
 
