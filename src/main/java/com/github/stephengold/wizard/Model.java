@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019-2023 Stephen Gold
+ Copyright (c) 2019-2026 Stephen Gold
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -742,7 +742,6 @@ class Model {
 
         unload();
         String assetRoot = assetRoot();
-        String assetPath = assetPath();
 
         Locators.save();
         Locators.unregisterAll();
@@ -750,6 +749,7 @@ class Model {
         Locators.registerDefault();
         AssetManager assetManager = Locators.getAssetManager();
         assetManager.clearCache();
+        String assetPath = assetPath();
         try {
             this.rootSpatial = assetManager.loadModel(assetPath);
             this.loadException = null;
