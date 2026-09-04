@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019-2023 Stephen Gold
+ Copyright (c) 2019-2026 Stephen Gold
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -173,7 +173,7 @@ class TestMode extends InputMode {
         Validate.nonNull(actionString, "action string");
         if (logger.isLoggable(Level.INFO)) {
             logger.log(Level.INFO, "Got action {0} ongoing={1}",
-                    new Object[]{MyString.quote(actionString), ongoing});
+                    new Object[] {MyString.quote(actionString), ongoing});
         }
 
         boolean handled = false;
