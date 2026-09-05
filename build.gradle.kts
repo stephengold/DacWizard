@@ -47,10 +47,10 @@ tasks.withType<Checkstyle>().configureEach {
 
 tasks.withType<JavaCompile>().configureEach { // Java compile-time options:
     options.compilerArgs.add("-Xdiags:verbose")
-
-    // Suppress warnings that source value 8 is obsolete:
-    options.compilerArgs.add("-Xlint:-options")
-
+    if (javaVersion.isCompatibleWith(JavaVersion.VERSION_20)) {
+        // Suppress warnings that source value 8 is obsolete:
+        options.compilerArgs.add("-Xlint:-options")
+    }
     options.compilerArgs.add("-Xlint:unchecked")
     //options.setDeprecation(true) // to provide detailed deprecation warnings
     options.encoding = "UTF-8"
