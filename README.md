@@ -1,3 +1,5 @@
+<img height="150" src="https://i.imgur.com/YEPFEcx.png" alt="Minie Project logo">
+
 [DacWizard][project] is a GUI application
 to generate a [Minie] ragdoll for a specific 3-D model.
 
